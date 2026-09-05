@@ -1,3 +1,7 @@
+pub mod parser;
+pub mod response;
+pub mod serializer;
+
 use std::{
     sync::{
         Arc, Mutex,
