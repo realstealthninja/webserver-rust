@@ -3,6 +3,8 @@ use http::{
     HeaderName, HeaderValue, Request, Response, StatusCode, Version, header::CONTENT_LENGTH,
 };
 use log;
+use webserver::ThreadPool;
+
 use std::{
     error::Error,
     fmt::Debug,
@@ -178,11 +180,14 @@ fn handle_connection(mut stream: TcpStream) {
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let pool = ThreadPool::new(5);
 
     for stream in listener.incoming() {
-        match stream {
-            Ok(stream) => handle_connection(stream),
-            Err(err) => log::error!("Failed to accept connection: {}", err),
-        };
+        pool.execute(|| {
+            match stream {
+                Ok(stream) => handle_connection(stream),
+                Err(err) => log::error!("Failed to accept connection: {}", err),
+            };
+        });
     }
 }
