@@ -1,8 +1,6 @@
 use core::fmt;
 use http::{
-    HeaderName, HeaderValue, Request, Response, StatusCode, Version,
-    header::{self, CONTENT_LENGTH},
-    response,
+    HeaderName, HeaderValue, Request, Response, StatusCode, Version, header::CONTENT_LENGTH,
 };
 use log;
 use std::{
@@ -11,6 +9,8 @@ use std::{
     fs,
     io::{BufRead, BufReader, Read, Write},
     net::{TcpListener, TcpStream},
+    thread,
+    time::Duration,
     vec,
 };
 
@@ -49,7 +49,7 @@ fn serialize<T: Into<Vec<u8>>>(response: Response<T>) -> Result<Vec<u8>, HttpSer
 
     let status_code = parts.status.as_u16();
 
-    let mut start_line = format!(
+    let start_line = format!(
         "{} {} {}",
         version,
         status_code,
@@ -141,7 +141,15 @@ fn render_file(path: String, status: StatusCode) -> Response<String> {
     string_response(contents.unwrap(), status)
 }
 
-fn index(request: Request<String>) -> Response<String> {
+fn sleep(_: Request<String>) -> Response<String> {
+    thread::sleep(Duration::from_secs(5));
+    return string_response(
+        "waited 5 seconds".to_owned(),
+        StatusCode::from_u16(200).unwrap(),
+    );
+}
+
+fn index(_: Request<String>) -> Response<String> {
     return render_file(
         "templates/index.html".to_owned(),
         StatusCode::from_u16(200).unwrap(),
@@ -154,6 +162,7 @@ fn handle_connection(mut stream: TcpStream) {
 
     let response = match *&request.uri().path() {
         "/" => index(request),
+        "/sleep" => sleep(request),
         _ => Response::builder()
             .version(Version::HTTP_11)
             .header("Content-Length", 0)
