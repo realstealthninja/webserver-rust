@@ -6,6 +6,8 @@ use std::{
     thread::{self, JoinHandle},
 };
 
+use log::trace;
+
 struct Worker {
     id: usize,
     thread: JoinHandle<()>,
@@ -18,11 +20,11 @@ impl Worker {
                 let message = receiver.lock().unwrap().recv();
                 match message {
                     Ok(job) => {
-                        println!("Thread {id} working on request...");
+                        trace!("Thread {id} working on request...");
                         job()
                     }
                     Err(_) => {
-                        println!("Thread {id} disconnected; shutting down");
+                        trace!("Thread {id} disconnected; shutting down");
                         break;
                     }
                 }
@@ -71,7 +73,7 @@ impl Drop for ThreadPool {
     fn drop(&mut self) {
         for worker in self.workers.drain(..) {
             drop(self.sender.take());
-            println!("Shutting down thread {}", worker.id);
+            trace!("Shutting down thread {}", worker.id);
             worker.thread.join().unwrap();
         }
     }

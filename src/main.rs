@@ -3,7 +3,7 @@ use core::fmt;
 use http::{
     HeaderName, HeaderValue, Request, Response, StatusCode, Version, header::CONTENT_LENGTH,
 };
-use log;
+use log::{self, error, info};
 use webserver::ThreadPool;
 
 use std::{
@@ -162,7 +162,7 @@ fn index(_: Request<String>) -> Response<String> {
 
 fn handle_connection(mut stream: TcpStream) {
     let request = parse(&stream).unwrap();
-    println!("handling {}", *request.uri());
+    info!("handling {}", *request.uri());
 
     let response = match *&request.uri().path() {
         "/" => index(request),
@@ -194,7 +194,7 @@ fn main() {
         pool.execute(|| {
             match stream {
                 Ok(stream) => handle_connection(stream),
-                Err(err) => log::error!("Failed to accept connection: {}", err),
+                Err(err) => error!("Failed to accept connection: {}", err),
             };
         });
     }
