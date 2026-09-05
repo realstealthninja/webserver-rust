@@ -1,3 +1,4 @@
+use clap::Parser;
 use core::fmt;
 use http::{
     HeaderName, HeaderValue, Request, Response, StatusCode, Version, header::CONTENT_LENGTH,
@@ -177,10 +178,16 @@ fn handle_connection(mut stream: TcpStream) {
     stream.write_all(&mut response.as_slice()).unwrap();
     stream.flush().unwrap();
 }
+#[derive(Parser, Debug)]
+struct Args {
+    #[arg(short, long, default_value_t = 1)]
+    thread_count: usize,
+}
 
 fn main() {
+    let args = Args::parse();
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-    let pool = ThreadPool::new(5);
+    let pool = ThreadPool::new(args.thread_count);
 
     for stream in listener.incoming() {
         pool.execute(|| {
