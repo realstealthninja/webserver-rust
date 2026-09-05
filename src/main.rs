@@ -85,6 +85,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     };
 
+    info!("Listening on http://localhost:{}", args.port);
+
     let pool = ThreadPool::new(args.thread_count);
 
     for stream in listener.incoming() {
