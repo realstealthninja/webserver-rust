@@ -11,8 +11,8 @@ use std::{
 };
 
 use webserver::{
-    ThreadPool,
     parser::parse,
+    pool::ThreadPool,
     response::{self, render_file, write_response},
 };
 
