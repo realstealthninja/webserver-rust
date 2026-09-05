@@ -135,6 +135,7 @@ fn string_response(string: String, status: StatusCode) -> Response<String> {
     Response::builder()
         .version(Version::HTTP_11)
         .header("content-length", string.len())
+        .status(status)
         .body(string)
         .unwrap()
 }
