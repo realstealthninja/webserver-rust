@@ -28,7 +28,10 @@ pub fn parse(stream: &TcpStream) -> Result<Request<String>, HttpParseError> {
         .take_while(|line| !line.is_empty())
         .collect();
 
-    let start_line = headers.first().clone().unwrap();
+    let start_line = match headers.first().clone() {
+        Some(start_line) => start_line,
+        None => return Err(HttpParseError {}),
+    };
 
     let mut request = Request::default();
     // // parse header
