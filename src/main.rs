@@ -186,6 +186,7 @@ struct Args {
 }
 
 fn main() {
+    pretty_env_logger::init();
     let args = Args::parse();
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
     let pool = ThreadPool::new(args.thread_count);
