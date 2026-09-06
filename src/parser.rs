@@ -24,7 +24,7 @@ pub fn parse(stream: &TcpStream) -> Result<Request<String>, HttpParseError> {
     let headers: Vec<_> = buffer
         .by_ref()
         .lines()
-        .map(|line| line.unwrap())
+        .map(|line| line.unwrap_or_default())
         .take_while(|line| !line.is_empty())
         .collect();
 
