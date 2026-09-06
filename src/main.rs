@@ -17,9 +17,9 @@ use webserver::{
 };
 
 fn sleep(_: Request<String>) -> Response<String> {
-    thread::sleep(Duration::from_secs(5));
+    thread::sleep(Duration::from_secs(2));
     return response::from_string(
-        "waited 5 seconds".to_owned(),
+        "waited 2 seconds".to_owned(),
         StatusCode::from_u16(200).unwrap(),
     );
 }
@@ -72,15 +72,21 @@ struct Args {
 
     #[arg(short, long, default_value_t = 7878)]
     port: u32,
+
+    #[arg(short, long, default_value_t = "127.0.0.1".to_owned())]
+    ipaddr: String,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
     pretty_env_logger::init();
     let args = Args::parse();
-    let listener = match TcpListener::bind(format!("127.0.0.1:{}", args.port)) {
+    let listener = match TcpListener::bind(format!("{}:{}", args.ipaddr, args.port)) {
         Ok(listener) => listener,
         Err(err) => {
-            error!("Failed to bind to address 127.0.0.1:{}: {}", args.port, err);
+            error!(
+                "Failed to bind to address {}:{}: {}",
+                args.ipaddr, args.port, err
+            );
             return Err(Box::new(err));
         }
     };
